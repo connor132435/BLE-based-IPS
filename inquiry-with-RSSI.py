@@ -105,7 +105,8 @@ def device_inquiry_with_with_rssi(sock):
                 rssi = bluetooth.byte_to_signed_int(
                     bluetooth.get_byte(pkt[1 + 13 * nrsp + i]))
                 results.append((addr, rssi))
-                print("[{}] RSSI: {}".format(addr, rssi))
+                if addr == "A8:9C:78:9B:93:0D":
+                    print("[{}] RSSI: {}".format(addr, rssi))
         elif event == bluez.EVT_INQUIRY_COMPLETE:
             break
         elif event == bluez.EVT_CMD_STATUS:
@@ -157,4 +158,6 @@ if mode != 1:
         print("Error while setting inquiry mode")
     print("Result:", result)
 
-device_inquiry_with_with_rssi(sock)
+reptitions = 10
+for i in range(reptitions):
+    device_inquiry_with_with_rssi(sock)
