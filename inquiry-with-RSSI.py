@@ -159,7 +159,7 @@ if mode != 1:
     print("Result:", result)
 
 if len(sys.argv) > 1:
-    reptitions = sys.argv[1]
+    reptitions = int(sys.argv[1])
 else:
     reptitions = 1
 for i in range(reptitions):
