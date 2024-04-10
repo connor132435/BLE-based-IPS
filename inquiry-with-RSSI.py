@@ -158,6 +158,9 @@ if mode != 1:
         print("Error while setting inquiry mode")
     print("Result:", result)
 
-reptitions = 10
+if len(sys.argv) > 1:
+    reptitions = sys.argv[1]
+else:
+    reptitions = 1
 for i in range(reptitions):
     device_inquiry_with_with_rssi(sock)
