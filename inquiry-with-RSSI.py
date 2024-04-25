@@ -8,6 +8,7 @@ discovered device
 
 import struct
 import sys
+import threading
 
 import bluetooth
 import bluetooth._bluetooth as bluez  # low level bluetooth wrappers
@@ -130,37 +131,52 @@ def device_inquiry_with_with_rssi(sock):
 
     return results
 
-dev_id = 0
-try:
-    sock = bluez.hci_open_dev(dev_id)
-except:
-    print("Error accessing bluetooth device.")
-    sys.exit(1)
+if __name__ == '__main__':
+    
 
-try:
-    mode = read_inquiry_mode(sock)
-except Exception as e:
-    print("Error reading inquiry mode.")
-    print("Are you sure this a bluetooth 1.2 device?")
-    print(e)
-    sys.exit(1)
-print("Current inquiry mode is", mode)
+    if len(sys.argv) > 1:
+        reptitions = int(sys.argv[1])
+    else:
+        reptitions = 1
+    
+    threads = []
 
-if mode != 1:
-    print("Writing inquiry mode...")
-    try:
-        result = write_inquiry_mode(sock, 1)
-    except Exception as e:
-        print("Error writing inquiry mode. Are you sure you're root?")
-        print(e)
-        sys.exit(1)
-    if result:
-        print("Error while setting inquiry mode")
-    print("Result:", result)
+    for i in range(reptitions):
+        dev_id = 0
+        try:
+            sock = bluez.hci_open_dev(dev_id)
+        except:
+            print("Error accessing bluetooth device.")
+            sys.exit(1)
 
-if len(sys.argv) > 1:
-    reptitions = int(sys.argv[1])
-else:
-    reptitions = 1
-for i in range(reptitions):
-    device_inquiry_with_with_rssi(sock)
+        try:
+            mode = read_inquiry_mode(sock)
+        except Exception as e:
+            print("Error reading inquiry mode.")
+            print("Are you sure this a bluetooth 1.2 device?")
+            print(e)
+            sys.exit(1)
+        print("Current inquiry mode is", mode)
+
+        if mode != 1:
+            print("Writing inquiry mode...")
+            try:
+                result = write_inquiry_mode(sock, 1)
+            except Exception as e:
+                print("Error writing inquiry mode. Are you sure you're root?")
+                print(e)
+                sys.exit(1)
+            if result:
+                print("Error while setting inquiry mode")
+            print("Result:", result)
+        t = threading.Thread(target=device_inquiry_with_with_rssi, args=(sock,))
+        t.daemon = True
+        threads.append(t)
+    
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    #device_inquiry_with_with_rssi(sock)
