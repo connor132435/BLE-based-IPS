@@ -1,0 +1,18 @@
+import subprocess
+import tempfile
+
+processes = []
+
+repetitions = 2
+for i in range(repetitions):
+    f = tempfile.tmpf()
+    p = subprocess.Popen(["python3", "inquiry_with_with_rssi.py"], stdout=f)
+
+    processes.append((p,f))
+
+for p, f in processes:
+    p.wait()
+    f.seek(0)
+    logfile.write(f.read())
+    f.close()
+
