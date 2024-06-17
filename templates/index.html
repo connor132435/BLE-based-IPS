@@ -1,1 +1,24 @@
-hello world
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <title>WebGL Gyatt</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: black; /* Set background color to black */
+        }
+        canvas { 
+            display: block; 
+            width: 100vw;  /* Set canvas width to 100% of the viewport width */
+            height: 100vh; /* Set canvas height to 100% of the viewport height */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas" width="800" height="600"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/gl-matrix@2.8.1/dist/gl-matrix-min.js"></script>
+    <script src="webgl-demo.js"></script>
+</body>
+</html>
