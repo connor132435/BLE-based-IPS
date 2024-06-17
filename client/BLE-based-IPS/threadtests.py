@@ -4,6 +4,7 @@ import threading
 import time
 import math
 import requests
+import argparse
 
 socket_path = "/tmp/btlemon.sock"
 
@@ -19,9 +20,34 @@ server.listen(1)
 
 connection, client_address = server.accept()
 
+def parse():
+    parser = argparse.ArgumentParser(description="Process some parameters.")
+
+    # Adding the IP port argument
+    parser.add_argument('--ip_port', type=str, required=True, help='IP port number')
+    
+    # Adding the ID number argument
+    parser.add_argument('--id', type=int, required=True, help='ID number')
+    
+    parser.add_argument('--target_mac', type=str, required=True, help='Target MAC address')
+
+    args = parser.parse_args()
+    
+    # Access the arguments
+    ip_port = args.ip_port
+    id_number = args.id
+    target_mac = args.target_mac
+    
+    #print(f"IP Port: {ip_port}")
+    #print(f"ID Number: {id_number}")
+
+    return ip_port, id_number, target_mac
+
 buffer = ''
-headphone_MAC = "94:DB:56:02:E2:46"
-desktop_ip = "192.168.68.141:8080"
+
+server_ip_port, id_num, target_mac = parse()
+#headphone_MAC = "94:DB:56:02:E2:46"
+#desktop_ip = "192.168.68.151:8080"
 
 rssi_history = []
 max_history_length = 25
@@ -50,7 +76,7 @@ def receive_data():
 
         with rssi_lock:
             for line in lines:
-                if headphone_MAC in line:
+                if target_mac in line:
                     args = line.split(" ")
                     rssi_history.append(int(args[2]))
                     if len(rssi_history) > max_history_length:
@@ -68,8 +94,11 @@ def calculate_and_print():
 
 # Function to send HTTP request with the last 25 RSSI values
 def send_http_request(data):
-    url = 'http://' + desktop_ip + "/reportBLE"  # Replace with your server URL
-    payload = {'rssi_values': data}
+    url = 'http://' + server_ip_port + "/reportBLE"  # Replace with your server URL
+    payload = {
+            'rssi_values': data,
+            'ID': id_num
+            }
     headers = {'Content-Type': 'application/json'}
 
     try:
