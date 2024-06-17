@@ -50,11 +50,11 @@ server_ip_port, id_num, target_mac = parse()
 #desktop_ip = "192.168.68.151:8080"
 
 rssi_history = []
-max_history_length = 25
+max_history_length = 100
 
 # Parameters for RSSI to distance conversion
-A = -60  # RSSI value at 1 meter
-n = 2    # Path-loss exponent
+A = -59  # RSSI value at 1 meter
+n = 2.5    # Path-loss exponent
 
 # Lock to synchronize access to rssi_history
 rssi_lock = threading.Lock()
@@ -89,6 +89,7 @@ def calculate_and_print():
             if len(rssi_history) > 0:
                 distances = [rssi_to_distance(rssi) for rssi in rssi_history]
                 avg_distance = sum(distances) / len(distances)
+                print(sum(rssi_history)/ len(rssi_history))
                 print(f"last {len(rssi_history)} avg distance: {avg_distance:.2f} meters")
                 send_http_request(avg_distance)
 

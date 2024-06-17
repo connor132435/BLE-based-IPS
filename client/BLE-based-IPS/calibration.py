@@ -90,7 +90,7 @@ def calculate_and_print():
             if len(rssi_history) > 0:
                 distances = [rssi_to_distance(rssi) for rssi in rssi_history]
                 avg_distance = sum(distances) / len(distances)
-                print(f"last {len(rssi_history)} avg distance: {avg_distance:.2f} meters")
+                #print(f"last {len(rssi_history)} avg distance: {avg_distance:.2f} meters")
                 #send_http_request(avg_distance)
 
 def update(frame):
@@ -130,12 +130,12 @@ calculate_thread = threading.Thread(target=calculate_and_print, daemon=True)
 receive_thread.start()
 calculate_thread.start()
 
-x = [1]
-fig, ax = plt.subplots()
-graph = ax.plot(rssi_history, color = 'g')[0]
+#x = [1]
+#fig, ax = plt.subplots()
+#graph = ax.plot(rssi_history, color = 'g')[0]
 
-anim = FuncAnimation(fig, update, frames = None)
-plt.show()
+#anim = FuncAnimation(fig, update, frames = None)
+#plt.show()
 
 try:
     while True:
@@ -143,5 +143,6 @@ try:
 except KeyboardInterrupt:
     print("interrupt by user")
 finally:
+    print(rssi_history)
     connection.close()
     os.unlink(socket_path)
