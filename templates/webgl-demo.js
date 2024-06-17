@@ -1,3 +1,35 @@
+// Define the function to make the AJAX request
+function makeRequest(url, method, data, callback) {
+    var xhr = new XMLHttpRequest();
+
+    // Set up the callback function to handle the response
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // Request is complete
+            if (xhr.status >= 200 && xhr.status < 300) { // Successful response
+                callback(null, xhr.responseText);
+            } else { // Error in response
+                callback(xhr.status);
+            }
+        }
+    };
+
+    // Open the request
+    xhr.open(method, url, true);
+
+    // Set the content type for POST requests
+    if (method === 'POST' && data) {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+    }
+
+    // Send the request
+    if (data) {
+        xhr.send(JSON.stringify(data));
+    } else {
+        xhr.send();
+    }
+}
+
+
 const canvas = document.getElementById('webgl-canvas');
 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
@@ -286,3 +318,23 @@ gl.clearColor(0, 0, 0, 1);
 gl.enable(gl.DEPTH_TEST);
 
 requestAnimationFrame(drawScene);
+
+
+// Example usage of the makeRequest function
+var url = 'localhost:8080/getData';
+var method = 'GET'; // Can be 'GET' or 'POST'
+var data = null; // Data to send with POST requests
+
+function parse(response){
+    return response;
+}
+
+makeRequest(url, method, data, function(error, response) {
+    if (error) {
+        console.error('Error:', error);
+        return;
+    }
+    response = parse(response);
+    const sphereData2 = createSphere(0.02, 32, 32, 0.91, -0.91, 0.333, raspcolor);
+});
+
