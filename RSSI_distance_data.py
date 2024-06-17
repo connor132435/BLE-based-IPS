@@ -1,7 +1,7 @@
 import paramiko
 import getpass
 import traceback
-import threading
+import subprocess
 
 def execute_remote_command(ssh, command):
     """Execute a command on the remote server and print its output."""
@@ -14,7 +14,7 @@ def execute_remote_command(ssh, command):
 # username = "pi"
 
 
-def get_RSSI(hostname, username, password, num_threads):
+def get_RSSI(hostname, username, password, num_processes):
 
     port = 22
     ssh = paramiko.SSHClient()
