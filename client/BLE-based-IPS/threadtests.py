@@ -51,7 +51,7 @@ server_ip_port, id_num, target_mac = parse()
 #desktop_ip = "192.168.68.151:8080"
 
 rssi_history = []
-max_history_length = 100
+max_history_length = 50
 
 # Parameters for RSSI to distance conversion
 # A = -59  # RSSI value at 1 meter
@@ -121,7 +121,6 @@ def calc_A_n():
 # distances is dist from pi4 to pi1,pi2,pi3
 # dame for rssi
 # both 1d lists
-
 
 
 
