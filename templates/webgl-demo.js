@@ -89,6 +89,38 @@ function createProgram(gl, vertexShader, fragmentShader) {
 
 const program = createProgram(gl, vertexShader, fragmentShader);
 
+function createFloorFace() {
+    const floorPositions = new Float32Array([
+        // Floor face vertices
+        -1.0, -1.0,  0.615, // Vertex 1
+         1.0, -1.0,  0.615, // Vertex 2
+         1.0,  1.0,  0.615, // Vertex 3
+         0.45, 1.0,  0.615, // Vertex 4
+         0.45, 0.532,  0.615, // Vertex 5
+        -1.0,  0.532,  0.615, // Vertex 6
+    ]);
+
+    const floorColors = new Float32Array([
+        // Colors for each vertex (yellow for the floor)
+        1.0,  1.0,  0.0,  0.1, // 
+        1.0,  1.0,  0.0,  0.1, // 
+        1.0,  1.0,  0.0,  0.1, // 
+        1.0,  1.0,  0.0,  0.1, // 
+        1.0,  1.0,  0.0,  0.1, // 
+        1.0,  1.0,  0.0,  0.1, // 
+    ]);
+
+    const floorIndices = new Uint16Array([
+        // Floor face (filled with two triangles)
+        0, 1, 5,
+        1, 4, 5,
+        1, 2, 4,
+        2, 3, 4
+    ]);
+
+    return { positions: floorPositions, colors: floorColors, indices: floorIndices };
+}
+
 function createBox() {
     const positions = new Float32Array([
         // Front face
@@ -192,6 +224,7 @@ function createSphere(radius, slices, stacks, centerX, centerY, centerZ, color) 
 
 const raspcolor = [0.886, 0.0429, 0.359, 1.0];
 const boxData = createBox();
+const floorData = createFloorFace();
 
 const boxPositionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
@@ -204,6 +237,18 @@ gl.bufferData(gl.ARRAY_BUFFER, boxData.colors, gl.STATIC_DRAW);
 const boxIndexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBuffer);
 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, boxData.indices, gl.STATIC_DRAW);
+
+const floorPositionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, floorPositionBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, floorData.positions, gl.STATIC_DRAW);
+
+const floorColorBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, floorColorBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, floorData.colors, gl.STATIC_DRAW);
+
+const floorIndexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorIndexBuffer);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorData.indices, gl.STATIC_DRAW);
 
 const spheres = [
     createSphere(0.02, 32, 32, 0.91, -0.91, 0.333, raspcolor),
@@ -340,6 +385,14 @@ function drawScene() {
     gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBuffer);
     gl.drawElements(gl.LINES, boxData.indices.length, gl.UNSIGNED_SHORT, 0);
+
+    // Draw the filled floor face
+    gl.bindBuffer(gl.ARRAY_BUFFER, floorPositionBuffer);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, floorColorBuffer);
+    gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorIndexBuffer);
+    gl.drawElements(gl.TRIANGLES, floorData.indices.length, gl.UNSIGNED_SHORT, 0);
 
     for (let i = 0; i < spheres.length; i++) {
         drawSphere(positionBuffers[i], colorBuffers[i], indexBuffers[i], spheres[i]);
