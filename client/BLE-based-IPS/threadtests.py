@@ -97,9 +97,9 @@ for key in pi_locations.keys():
 
     d = (a**2 + b**2 + c**2)**(0.5)
 
-    dists[key].append(d * 39.3701 / 78)
+    dists[key].append(d / 39.3701 * 78)
 
-last_rssi = [0,0,0,0]
+last_rssi = [[],[],[],[]]
 print(dists)
 
 def calc_A_n():
@@ -109,10 +109,13 @@ def calc_A_n():
     ris = []
 
     for i in range(len(last_rssi)):
-        if last_rssi[i] != 0:
+        if len(last_rssi[i]) != 0:
             dis.append(dists[id_num][i])
-            ris.append(last_rssi[i])
+            if (len(last_rssi[i]) == 0):
+                continue
+            ris.append(sum(last_rssi[i])/len(last_rssi[i]))
     print(last_rssi)
+    print(ris)
     print("DISSDSDSDSD : " +str(dis))
     if (len(dis) <= 1):
         return 2.9, -60
@@ -155,20 +158,29 @@ def receive_data():
 
                 if pi1_mac in line:
                     args = line.split(" ")
-                    last_rssi[0] = int(args[2])
+                    last_rssi[0].append(int(args[2]))
+                    if len(last_rssi[0]) > max_history_length:
+                        last_rssi[0].pop(0)
+
                     #print("ASDASDASFASDASDASDASDASDADS")
                 
                 if pi2_mac in line:
                     args = line.split(" ")
-                    last_rssi[1] = int(args[2])
+                    last_rssi[1].append(int(args[2]))
+                    if len(last_rssi[1]) > max_history_length:
+                        last_rssi[1].pop(0)
                 
                 if pi3_mac in line:
                     args = line.split(" ")
-                    last_rssi[2] = int(args[2])
+                    last_rssi[2].append(int(args[2]))
+                    if len(last_rssi[2]) > max_history_length:
+                        last_rssi[2].pop(0)
                 
                 if pi4_mac in line:
                     args = line.split(" ")
-                    last_rssi[3] = int(args[2])
+                    last_rssi[3].append(int(args[2]))
+                    if len(last_rssi[3]) > max_history_length:
+                        last_rssi[3].pop(0)
 
                 
 
