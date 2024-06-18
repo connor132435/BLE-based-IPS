@@ -112,7 +112,9 @@ def calc_A_n():
         if last_rssi != 0:
             dis.append(dists[i])
             ris.append(last_rssi[i])
-            
+    
+    if (len(dis) == 0):
+        return 2.9, -60
     cur_n, cur_A = anchor_regression(dis, ris)
     return cur_n, cur_A
 
