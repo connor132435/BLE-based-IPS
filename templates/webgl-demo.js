@@ -142,18 +142,19 @@ function createBox() {
 
     const colors = new Float32Array([
         // Colors for each vertex (white for all)
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
-        1.0,  1.0,  1.0,  1.0, // white
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 1.0,
     ]);
 
     const indices = new Uint16Array([
@@ -401,7 +402,7 @@ function drawScene() {
     requestAnimationFrame(drawScene);
 }
 
-gl.clearColor(0, 0, 0, 1);
+gl.clearColor(1, 1, 1, 1);
 gl.enable(gl.DEPTH_TEST);
 
 requestAnimationFrame(drawScene);
