@@ -5,6 +5,7 @@ import time
 import math
 import requests
 import argparse
+import numpy as np
 
 socket_path = "/tmp/btlemon.sock"
 
@@ -50,16 +51,85 @@ server_ip_port, id_num, target_mac = parse()
 #desktop_ip = "192.168.68.151:8080"
 
 rssi_history = []
-max_history_length = 100
+max_history_length = 50
 
 # Parameters for RSSI to distance conversion
-A = -59  # RSSI value at 1 meter
-n = 2.5    # Path-loss exponent
+# A = -59  # RSSI value at 1 meter
+# n = 2.5    # Path-loss exponent
+
+pi_locations = {1: [0.910, -0.910, 0.333], 
+                2 : [0.450, 0.490, -0.350], 
+                3 : [-0.846, 0.407, 0.050], 
+                4 : [-0.900, -0.900, -0.500]}
+
+dists = {1:[],2:[],3:[],4:[]}
+
+pi1_mac = "DC:A6:32:39:46:FD"
+pi2_mac = "AA:AA:AA:AA:AA:AA"
+pi3_mac = "DC:A6:32:39:44:ED"
+pi4_mac = "DC:A6:32:39:46:91"
+
+def anchor_regression(distances, rssi_vals):
+    logdata = [10* math.log10(dist) for dist in distances]
+    rssi_neg = [-1* i for i in rssi_vals]
+    ones = np.ones(len(distances), dtype= float)
+    negones = [-1 * i for i in ones]
+    M = np.array([logdata, negones])
+    try:
+        N = np.linalg.solve(M, rssi_neg)
+    except:
+        K = np.linalg.pinv(M)
+        N = K @ rssi_neg
+
+    return N[0], N[1]
+
+for key in pi_locations.keys():
+  for other_key in pi_locations.keys():
+    if key == other_key:
+      pass
+
+    loc = pi_locations[key]
+    loc2 = pi_locations[other_key]
+
+    a = loc[0] - loc2[0]
+    b = loc[1] - loc2[1]
+    c = loc[2] - loc2[2] 
+
+    d = (a**2 + b**2 + c**2)**(0.5)
+
+    dists[key].append(d * 39.3701 / 78)
+
+last_rssi = [0,0,0,0]
+
+
+def calc_A_n():
+    cur_A = None
+    cur_n = None
+    dis = []
+    ris = []
+
+    for i in range(len(last_rssi)):
+        if last_rssi != 0:
+            dis.append(dists[i])
+            ris.append(last_rssi[i])
+    
+    if (len(dis) == 0):
+        return 2.9, -60
+    cur_n, cur_A = anchor_regression(dis, ris)
+    return cur_n, cur_A
+
+# distances is dist from pi4 to pi1,pi2,pi3
+# dame for rssi
+# both 1d lists
+
+
 
 # Lock to synchronize access to rssi_history
 rssi_lock = threading.Lock()
 
 def rssi_to_distance(rssi):
+    n, A = calc_A_n()
+    print(n, A)
     return 10 ** ((A - rssi) / (10 * n))
 
 def receive_data():
@@ -81,6 +151,24 @@ def receive_data():
                     rssi_history.append(int(args[2]))
                     if len(rssi_history) > max_history_length:
                         rssi_history.pop(0)
+
+                if pi1_mac in line:
+                    args = line.split(" ")
+                    last_rssi[0] = int(args[2])
+                
+                if pi1_mac in line:
+                    args = line.split(" ")
+                    last_rssi[1] = int(args[2])
+                
+                if pi1_mac in line:
+                    args = line.split(" ")
+                    last_rssi[2] = int(args[2])
+                
+                if pi1_mac in line:
+                    args = line.split(" ")
+                    last_rssi[3] = int(args[2])
+
+                
 
 def calculate_and_print():
     while True:

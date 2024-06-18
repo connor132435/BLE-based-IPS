@@ -409,40 +409,55 @@ requestAnimationFrame(drawScene);
 
 
 // Example usage of the makeRequest function
-var url = 'http://localhost:8080/getData';
+var url = 'http://192.168.68.141:8080/getData';
 var method = 'GET'; // Can be 'GET' or 'POST'
 var data = null; // Data to send with POST requests
 
-makeRequest(url, method, data, function(error, response) {
-    if (error) {
-        console.error('Error:', error);
-        return;
-    }
+setInterval(function() {
+    makeRequest(url, method, data, function(error, response2) {
+        if (error) {
+            console.error('Error:', error);
+            return;
+        }
+    
+        response = JSON.parse(response2);
+        pi_info = response["data"];
+    
+    
+        // Create and append a new sphere
+        //debugger;
+        if (pi_info[3] < 0.1) {
+            pi_info[3] = 0.1;
+        }
 
-    response = JSON.parse(response);
-    pi_info = response.get("data");
+        const newSphere = createSphere(pi_info[3], 32, 32, pi_info[0], pi_info[1], pi_info[2], [0.0, 0.5, 1.0, 1.0]);
+        spheres.push(newSphere);
+        if (spheres.length > 10) {
+            spheres.splice(4,1);
+            positionBuffers.splice(4,1);
+            colorBuffers.splice(4,1);
+            indexBuffers.splice(4,1);
+        }
+    
+        // Create buffers for the new sphere
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newSphere.positions), gl.STATIC_DRAW);
+        positionBuffers.push(positionBuffer);
+    
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newSphere.colors), gl.STATIC_DRAW);
+        colorBuffers.push(colorBuffer);
+    
+        const indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(newSphere.indices), gl.STATIC_DRAW);
+        indexBuffers.push(indexBuffer);
+    
+        requestAnimationFrame(drawScene);
+    });
+},
+500);
 
-
-    // Create and append a new sphere
-    const newSphere = createSphere(pi_info[3], 32, 32, pi_info[0], pi_info[1], pi_info[2], [0.0, 0.5, 1.0, 1.0]);
-    spheres.push(newSphere);
-
-    // Create buffers for the new sphere
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newSphere.positions), gl.STATIC_DRAW);
-    positionBuffers.push(positionBuffer);
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newSphere.colors), gl.STATIC_DRAW);
-    colorBuffers.push(colorBuffer);
-
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(newSphere.indices), gl.STATIC_DRAW);
-    indexBuffers.push(indexBuffer);
-
-    requestAnimationFrame(drawScene);
-});
 
