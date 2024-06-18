@@ -85,8 +85,6 @@ def anchor_regression(distances, rssi_vals):
 
 for key in pi_locations.keys():
   for other_key in pi_locations.keys():
-    if key == other_key:
-      pass
 
     loc = pi_locations[key]
     loc2 = pi_locations[other_key]
@@ -110,8 +108,8 @@ def calc_A_n():
 
     for i in range(len(last_rssi)):
         if last_rssi != 0:
-            dis.append(dists[i])
-            ris.append(last_rssi[i])
+            dis.append(dists[i + 1])
+            ris.append(last_rssi[i + 1])
     
     if (len(dis) == 0):
         return 2.9, -60
