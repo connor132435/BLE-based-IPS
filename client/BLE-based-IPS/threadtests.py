@@ -108,7 +108,7 @@ def calc_A_n():
 
     for i in range(len(last_rssi)):
         if last_rssi != 0:
-            dis.append(dists[i + 1])
+            dis.append(dists[id_num][i])
             ris.append(last_rssi[i])
     
     if (len(dis) == 0):
