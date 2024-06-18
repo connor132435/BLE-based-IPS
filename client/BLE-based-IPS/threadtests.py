@@ -71,10 +71,12 @@ pi4_mac = "DC:A6:32:39:46:91"
 
 def anchor_regression(distances, rssi_vals):
     logdata = [10* math.log10(dist) for dist in distances]
-    rssi_neg = [-1* i for i in rssi_vals]
+    rssi_neg = np.array([-1* i for i in rssi_vals])
     ones = np.ones(len(distances), dtype= float)
     negones = [-1 * i for i in ones]
     M = np.array([logdata, negones])
+    M = M.transpose()
+    rssi_neg = rssi_neg.transpose()
     try:
         N = np.linalg.solve(M, rssi_neg)
     except:
@@ -110,9 +112,9 @@ def calc_A_n():
         if last_rssi[i] != 0:
             dis.append(dists[id_num][i])
             ris.append(last_rssi[i])
-    
+    print(last_rssi)
     print("DISSDSDSDSD : " +str(dis))
-    if (len(dis) == 0):
+    if (len(dis) <= 1):
         return 2.9, -60
     cur_n, cur_A = anchor_regression(dis, ris)
     return cur_n, cur_A
@@ -154,16 +156,17 @@ def receive_data():
                 if pi1_mac in line:
                     args = line.split(" ")
                     last_rssi[0] = int(args[2])
+                    #print("ASDASDASFASDASDASDASDASDADS")
                 
-                if pi1_mac in line:
+                if pi2_mac in line:
                     args = line.split(" ")
                     last_rssi[1] = int(args[2])
                 
-                if pi1_mac in line:
+                if pi3_mac in line:
                     args = line.split(" ")
                     last_rssi[2] = int(args[2])
                 
-                if pi1_mac in line:
+                if pi4_mac in line:
                     args = line.split(" ")
                     last_rssi[3] = int(args[2])
 
