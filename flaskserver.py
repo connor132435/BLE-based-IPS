@@ -1,39 +1,41 @@
 from flask import Flask, request, jsonify, render_template
 import numpy as np
-pilocations = {"Device1": [.02, .02, .02], "Device2" : [.03, .03, .03], "Device3" : [.04, .04, .04], "Device4" : [.05, .05, .05]}
+pi_locations = {"1": [0.910, -0.910, 0.333], 
+               "2" : [0.450, 0.490, 0.250], 
+               "3" : [.04, .04, .04], 
+               "4" : [.05, .05, .05]}
 
+MAXINCHES = 156
 
+def regression(data): #TO-DO
 
-def regression(rssi): #TO-DO
-    xdata = pilocations[] #
-    ydata = pilocations[] #
-    zdata = pilocations[] #
+    xdata = [v[0] for v in pi_locations.values()] #
+    ydata = [v[1] for v in pi_locations.values()] #
+    zdata = [v[2] for v in pi_locations.values()] #
 
-    Bdata = []
-    Cdata = []
-    Ddata = []
+    
 
     distdata = []
     bvectdata = []
     #However the data is formatted CHANGE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     #print(data)
-    for i in range(len(data)):
-    datapoint = data[i].split(" ")
-    a = float(datapoint[0])
-    b = float(datapoint[1])
-    c = float(datapoint[2])
-    d = float(datapoint[3])
-    xdata.append(a)
-    ydata.append(b)
-    zdata.append(c)
-    Bdata.append(-2 * a)
-    Cdata.append(-2 * b)
-    Ddata.append(-2 * c)
-    distdata.append(d)
-    bvectdata.append(d ** 2 - c ** 2 - b ** 2 - a ** 2)
+    for key in data.keys():
+
+        loc = pi_locations[key]
+        a = loc[0]
+        b = loc[1]
+        c = loc[2]
+        d = convert_meters_to_webGL(data[key])
+
+        distdata.append(d)
+
+        bvectdata.append(d ** 2 - c ** 2 - b ** 2 - a ** 2)
     #However the data is formatted CHANGE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    Bdata = [-2 * x for x in xdata]
+    Cdata = [-2 * y for y in ydata]
+    Ddata = [-2 * z for z in zdata]
 
     one = np.ones(len(xdata), dtype=float)
     M = np.array([one, Bdata, Cdata, Ddata])
@@ -52,9 +54,13 @@ def regression(rssi): #TO-DO
 
     return [N[1], N[2], N[3], eval_error()]
 
+def convert_meters_to_webGL(dist):
+    dist_inches =  39.3701 * dist
+    return dist_inches / MAXINCHES * 2
 
-
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='', 
+            static_folder='templates')
 
 recieved_rssi = dict()
 
@@ -91,5 +97,5 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(host='192.168.68.151', port=8080)
+    app.run(host="192.168.68.141", port=8080)
 
