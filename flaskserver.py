@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 import numpy as np
-pi_locations = {"1": [0.910, -0.910, 0.333], 
-               "2" : [0.450, 0.490, 0.250], 
-               "3" : [.04, .04, .04], 
-               "4" : [.05, .05, .05]}
+pi_locations = {1: [0.910, -0.910, 0.333], 
+                2 : [0.450, 0.490, -0.350], 
+                3 : [-0.846, 0.407, 0.050], 
+                4 : [-0.900, -0.900, -0.500]}
 
 MAXINCHES = 156
 
@@ -27,6 +27,7 @@ def regression(data): #TO-DO
         b = loc[1]
         c = loc[2]
         d = convert_meters_to_webGL(data[key])
+        #d = data[key]
 
         distdata.append(d)
 
@@ -88,6 +89,14 @@ def receive_rssi_data():
 
 @app.route('/getData', methods=['GET'])
 def get_data():
+    # test = {
+    #     1: 1.28,
+    #     2: 1.05,
+    #     3: 1.82,
+    #     4: 2.44
+    # }
+    # regression_result = regression(test)
+
     regression_result = regression(recieved_rssi)
     return jsonify({'status': 'success', 'data': regression_result}), 200
 
@@ -97,5 +106,5 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(host="192.168.68.141", port=8080)
+    app.run(host="192.168.68.103", port=8080)
 
