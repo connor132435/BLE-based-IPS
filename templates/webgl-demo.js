@@ -321,20 +321,41 @@ requestAnimationFrame(drawScene);
 
 
 // Example usage of the makeRequest function
-var url = 'localhost:8080/getData';
+var url = 'http://localhost:8080/getData';
 var method = 'GET'; // Can be 'GET' or 'POST'
 var data = null; // Data to send with POST requests
-
-function parse(response){
-    return response;
-}
 
 makeRequest(url, method, data, function(error, response) {
     if (error) {
         console.error('Error:', error);
         return;
     }
-    response = parse(response);
-    const sphereData2 = createSphere(0.02, 32, 32, 0.91, -0.91, 0.333, raspcolor);
+
+    response = JSON.parse(response);
+    pi_info = response.get("data");
+
+
+    const sphereData5 = createSphere(pi_info[3], 32, 32, pi_info[0], pi_info[1], pi_info[2], [0.0, 0.5, 1.0, 1.0]);
+
+    const spherePositionBuffer5 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer5);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData5.positions), gl.STATIC_DRAW);
+
+    const sphereColorBuffer5 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer5);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData5.colors), gl.STATIC_DRAW);
+
+    const sphereIndexBuffer5 = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer5);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphereData5.indices), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer5);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer5);
+    gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer5);
+    gl.drawElements(gl.TRIANGLES, sphereData5.indices.length, gl.UNSIGNED_SHORT, 0);
+
+    requestAnimationFrame(drawScene);
 });
 
