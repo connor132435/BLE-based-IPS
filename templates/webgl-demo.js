@@ -192,7 +192,6 @@ function createSphere(radius, slices, stacks, centerX, centerY, centerZ, color) 
 
 const raspcolor = [0.886, 0.0429, 0.359, 1.0];
 const boxData = createBox();
-const sphereData = createSphere(0.02, 32, 32, 0.91, -0.91, 0.333, raspcolor);
 
 const boxPositionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, boxPositionBuffer);
@@ -206,17 +205,35 @@ const boxIndexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBuffer);
 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, boxData.indices, gl.STATIC_DRAW);
 
-const spherePositionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.positions), gl.STATIC_DRAW);
+const spheres = [
+    createSphere(0.02, 32, 32, 0.91, -0.91, 0.333, raspcolor),
+    createSphere(0.02, 32, 32, 0.450, 0.490, -.350, raspcolor),
+    createSphere(0.02, 32, 32, -0.846, 0.407, 0.05, raspcolor),
+    createSphere(0.02, 32, 32, -0.9, -0.9, -0.5, raspcolor),
+    //createSphere(0.5, 32, 32, 2.5, 0, 0, [1, 0, 1, 1])
+];
 
-const sphereColorBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData.colors), gl.STATIC_DRAW);
+const positionBuffers = spheres.map(sphere => {
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphere.positions), gl.STATIC_DRAW);
+    return buffer;
+});
 
-const sphereIndexBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphereData.indices), gl.STATIC_DRAW);
+const colorBuffers = spheres.map(sphere => {
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphere.colors), gl.STATIC_DRAW);
+    return buffer;
+});
+
+const indexBuffers = spheres.map(sphere => {
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.indices), gl.STATIC_DRAW);
+    return buffer;
+});
+
 
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 const colorAttributeLocation = gl.getAttribLocation(program, "a_color");
@@ -286,6 +303,26 @@ canvas.addEventListener('wheel', (event) => {
     //distance = Math.max(1.0, Math.min(10.0, distance));  // Clamp the distance
 });
 
+function drawSphere(positionBuffer, colorBuffer, indexBuffer, sphereData) {
+    mat4.identity(worldMatrix);
+    mat4.translate(worldMatrix, worldMatrix, [0, 0, -distance]);
+    mat4.rotate(worldMatrix, worldMatrix, rotationX, [1, 0, 0]);
+    mat4.rotate(worldMatrix, worldMatrix, rotationY, [0, 1, 0]);
+    mat4.multiply(worldViewProjectionMatrix, viewProjectionMatrix, worldMatrix);
+    gl.useProgram(program);
+    gl.uniformMatrix4fv(matrixUniformLocation, false, worldViewProjectionMatrix);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.drawElements(gl.TRIANGLES, sphereData.indices.length, gl.UNSIGNED_SHORT, 0);
+}
+
+
 function drawScene() {
     mat4.identity(worldMatrix);
     mat4.translate(worldMatrix, worldMatrix, [0, 0, -distance]);
@@ -304,12 +341,9 @@ function drawScene() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBuffer);
     gl.drawElements(gl.LINES, boxData.indices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer);
-    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer);
-    gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer);
-    gl.drawElements(gl.TRIANGLES, sphereData.indices.length, gl.UNSIGNED_SHORT, 0);
+    for (let i = 0; i < spheres.length; i++) {
+        drawSphere(positionBuffers[i], colorBuffers[i], indexBuffers[i], spheres[i]);
+    }
 
     requestAnimationFrame(drawScene);
 }
@@ -335,26 +369,7 @@ makeRequest(url, method, data, function(error, response) {
     pi_info = response.get("data");
 
 
-    const sphereData5 = createSphere(pi_info[3], 32, 32, pi_info[0], pi_info[1], pi_info[2], [0.0, 0.5, 1.0, 1.0]);
-
-    const spherePositionBuffer5 = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer5);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData5.positions), gl.STATIC_DRAW);
-
-    const sphereColorBuffer5 = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer5);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sphereData5.colors), gl.STATIC_DRAW);
-
-    const sphereIndexBuffer5 = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer5);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphereData5.indices), gl.STATIC_DRAW);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, spherePositionBuffer5);
-    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, sphereColorBuffer5);
-    gl.vertexAttribPointer(colorAttributeLocation, 4, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereIndexBuffer5);
-    gl.drawElements(gl.TRIANGLES, sphereData5.indices.length, gl.UNSIGNED_SHORT, 0);
+    spheres.append(createSphere(pi_info[3], 32, 32, pi_info[0], pi_info[1], pi_info[2], [0.0, 0.5, 1.0, 1.0]));
 
     requestAnimationFrame(drawScene);
 });
