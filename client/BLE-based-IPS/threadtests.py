@@ -98,7 +98,7 @@ for key in pi_locations.keys():
     dists[key].append(d * 39.3701 / 78)
 
 last_rssi = [0,0,0,0]
-
+print(dists)
 
 def calc_A_n():
     cur_A = None
@@ -107,10 +107,11 @@ def calc_A_n():
     ris = []
 
     for i in range(len(last_rssi)):
-        if last_rssi != 0:
+        if last_rssi[i] != 0:
             dis.append(dists[id_num][i])
             ris.append(last_rssi[i])
     
+    print("DISSDSDSDSD : " +str(dis))
     if (len(dis) == 0):
         return 2.9, -60
     cur_n, cur_A = anchor_regression(dis, ris)
